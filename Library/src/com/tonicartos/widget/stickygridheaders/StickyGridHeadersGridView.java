@@ -236,20 +236,22 @@ public class StickyGridHeadersGridView extends GridView implements OnScrollListe
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        mOnItemClickListener.onItemClick(parent, view,
-                mAdapter.translatePosition(position).mPosition, id);
+        // mOnItemClickListener.onItemClick(parent, view, mAdapter.translatePosition(position).mPosition, id);
+        mOnItemClickListener.onItemClick(parent, view, position, id);
     }
 
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        return mOnItemLongClickListener.onItemLongClick(parent, view,
-                mAdapter.translatePosition(position).mPosition, id);
+//        return mOnItemLongClickListener.onItemLongClick(parent, view,
+//                mAdapter.translatePosition(position).mPosition, id);
+        return mOnItemLongClickListener.onItemLongClick(parent, view, position, id);
     }
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        mOnItemSelectedListener.onItemSelected(parent, view,
-                mAdapter.translatePosition(position).mPosition, id);
+//        mOnItemSelectedListener.onItemSelected(parent, view,
+//                mAdapter.translatePosition(position).mPosition, id);
+        mOnItemSelectedListener.onItemSelected(parent, view, position, id);
     }
 
     @Override
@@ -480,24 +482,29 @@ public class StickyGridHeadersGridView extends GridView implements OnScrollListe
             mAdapter.unregisterDataSetObserver(mDataSetObserver);
         }
 
-        if (!mClipToPaddingHasBeenSet) {
-            mClippingToPadding = true;
-        }
+        if (adapter != null) {
+            if (!mClipToPaddingHasBeenSet) {
+                mClippingToPadding = true;
+            }
 
-        StickyGridHeadersBaseAdapter baseAdapter;
-        if (adapter instanceof StickyGridHeadersBaseAdapter) {
-            baseAdapter = (StickyGridHeadersBaseAdapter)adapter;
-        } else if (adapter instanceof StickyGridHeadersSimpleAdapter) {
-            // Wrap up simple adapter to auto-generate the data we need.
-            baseAdapter = new StickyGridHeadersSimpleAdapterWrapper(
-                    (StickyGridHeadersSimpleAdapter)adapter);
+            StickyGridHeadersBaseAdapter baseAdapter;
+            if (adapter instanceof StickyGridHeadersBaseAdapter) {
+                baseAdapter = (StickyGridHeadersBaseAdapter)adapter;
+            } else if (adapter instanceof StickyGridHeadersSimpleAdapter) {
+                // Wrap up simple adapter to auto-generate the data we need.
+                baseAdapter = new StickyGridHeadersSimpleAdapterWrapper(
+                        (StickyGridHeadersSimpleAdapter)adapter);
+            } else {
+                // Wrap up a list adapter so it is an adapter with zero headers.
+                baseAdapter = new StickyGridHeadersListAdapterWrapper(adapter);
+            }
+
+            this.mAdapter = new StickyGridHeadersBaseAdapterWrapper(getContext(), this, baseAdapter);
+            this.mAdapter.registerDataSetObserver(mDataSetObserver);
         } else {
-            // Wrap up a list adapter so it is an adapter with zero headers.
-            baseAdapter = new StickyGridHeadersListAdapterWrapper(adapter);
+            mAdapter = null;
         }
 
-        this.mAdapter = new StickyGridHeadersBaseAdapterWrapper(getContext(), this, baseAdapter);
-        this.mAdapter.registerDataSetObserver(mDataSetObserver);
         reset();
         super.setAdapter(this.mAdapter);
     }
