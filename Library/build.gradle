@@ -3,14 +3,25 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.5.+'
+        classpath 'com.android.tools.build:gradle:0.8.+'
     }
 }
 apply plugin: 'android-library'
+apply plugin: 'maven'
+
+version = "1.0.0"
+group = "com.tonicartos.widget.stickygridheaders"
+
+archivesBaseName = 'stickygridheaders'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
 
 android {
-    compileSdkVersion 18
-    buildToolsVersion "18.0.1"
+    compileSdkVersion 19
+    buildToolsVersion "19.0.0"
 
     sourceSets {
         main {
@@ -24,5 +35,21 @@ android {
         }
 
         instrumentTest.setRoot('tests')
+    }
+}
+
+uploadArchives {
+    configuration = configurations.archives
+    repositories.mavenDeployer {
+        repository(url: artifactoryRepo) {
+            authentication(userName: artifactoryUsername,
+                    password: artifactoryPassword)
+        }
+
+        pom.project {
+            name 'Android Cache Library'
+            packaging 'aar'
+            description 'Cache library for Android applications'
+        }
     }
 }
